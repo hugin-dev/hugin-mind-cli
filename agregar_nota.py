@@ -4,6 +4,33 @@ import os
 conexion = sqlite3.connect("hugin_mind.db")
 cursor = conexion.cursor()
 
+def buscar_nota(cursor):
+# 1. Limpiamos antes de buscar para que se vea ordenado
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    busqueda = input("Ingresa el concepto o categoría a buscar: ")
+    busqueda_final = f"%{busqueda}%"
+
+    cursor.execute('''
+        SELECT concepto, categoria, definicion FROM notas 
+        WHERE concepto LIKE ? OR categoria LIKE ?
+    ''', (busqueda_final, busqueda_final)) 
+
+    resultados = cursor.fetchall()
+
+    if not resultados:
+        print(f"\nNo se encontraron coincidencias para '{busqueda}' en la constelación.")
+    else:
+        print(f"\n--- Resultados encontrados para '{busqueda}' ---")
+        for concepto, categoria, definicion in resultados:
+            print(f"\nCONCEPTO: {concepto} ({categoria})")
+            print(f"DEFINICIÓN: {definicion}")
+            print("-" * 30)
+
+    # ESTA LÍNEA ES VITAL: Debe estar aquí para que el Menú no borre todo
+    input("\nPresiona Enter para volver al menú...")
+
+
 def agregar_nota(cursor, conexion):
 
     continuar = True
@@ -89,6 +116,7 @@ def ver_notas(cursor):
     input("\nPresiona Enter para volver al menú...")
         
 
+
 while True:
 
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -98,7 +126,8 @@ while True:
     print("2. Ver notas")
     print("3. Reto Aleatorio")
     print("4. Eliminar nota")
-    print("5. Salir")
+    print("5. Buscar Nota")
+    print("6. Salir")
 
     opcion = input("\n Selecciona una opcion: ")
 
@@ -112,7 +141,9 @@ while True:
             case "4":
                 eliminar_nota(cursor=cursor, conexion=conexion)
             case "5":
-                print("Hasta luego!")
+                buscar_nota(cursor=cursor)
+            case "6":
+                print("Hasta Luego")
                 break
             case _:
                 print("Opción no valida, intenta nuevamente.")
